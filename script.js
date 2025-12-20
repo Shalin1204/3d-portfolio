@@ -1,7 +1,4 @@
-/* ============================================================
-   🌌 3D Solar System Portfolio — SHALIN MISHRA
-   With orbit lines and tilted plane to prevent overlap
-============================================================ */
+
 
 const portfolioData = {
   sun: {
@@ -72,13 +69,13 @@ const portfolioData = {
           <li>Firebase signaling</li>
         </ul>
 
-        <h3>📱 MyYojna</h3>
+        <h3> MyYojna</h3>
         <p>Platform to discover government schemes.</p>
 
-        <h3>💰 FinTech Mini Tools</h3>
+        <h3> FinTech Mini Tools</h3>
         <p>Dashboards, finance utilities.</p>
 
-        <h3>🌐 3D Portfolio</h3>
+        <h3> 3D Portfolio</h3>
         <p>This website!</p>
       `
     },
@@ -91,7 +88,7 @@ const portfolioData = {
       distance: 13,
       speed: 0.16,
       content: `
-        <h2>❤️ Interests</h2>
+        <h2> Interests</h2>
         <ul>
           <li>Astronomy</li>
           <li>UI/UX</li>
@@ -114,7 +111,7 @@ const portfolioData = {
       distance: 16,
       speed: 0.14,
       content: `
-        <h2>💼 Experience</h2>
+        <h2> Experience</h2>
 
         <h3>Frontend Developer</h3>
         <ul>
@@ -139,7 +136,7 @@ const portfolioData = {
       distance: 19,
       speed: 0.1,
       content: `
-        <h2>📬 Contact</h2>
+        <h2> Contact</h2>
 
         <ul>
           <li>📧 mishrashalin599@gmail.com</li>
@@ -151,9 +148,7 @@ const portfolioData = {
   ]
 };
 
-/* ============================================================
-   THREE.JS SETUP
-============================================================ */
+/* 3.JS SETUP */
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -178,9 +173,9 @@ scene.add(new THREE.AmbientLight(0xffffff, 0.35));
 const sunLight = new THREE.PointLight(0xffffff, 2, 150);
 scene.add(sunLight);
 
-/* ============================================================
+/* 
    STARFIELD
-============================================================ */
+*/
 
 function createStars() {
   const geo = new THREE.BufferGeometry();
@@ -197,9 +192,7 @@ function createStars() {
 }
 createStars();
 
-/* ============================================================
-   SUN
-============================================================ */
+/* SUN */
 
 const sunGeo = new THREE.SphereGeometry(2.4, 32, 32);
 const sunMat = new THREE.MeshBasicMaterial({
@@ -220,9 +213,8 @@ const sunGlowMat = new THREE.MeshBasicMaterial({
 const sunGlow = new THREE.Mesh(sunGlowGeo, sunGlowMat);
 scene.add(sunGlow);
 
-/* ============================================================
-   PLANETS WITH ORBITS
-============================================================ */
+/*
+   PLANETS WITH ORBITS*/
 
 function makeTexture(hex) {
   const c = document.createElement("canvas");
@@ -318,9 +310,9 @@ portfolioData.planets.forEach((p, i) => {
   });
 });
 
-/* ============================================================
+/* 
    CAMERA CONTROLS
-============================================================ */
+*/
 
 let isDragging = false;
 let prevX = 0;
@@ -347,31 +339,17 @@ window.addEventListener("wheel", e => {
   const zoomFactor = 1 + e.deltaY * 0.0013;
   camera.position.multiplyScalar(zoomFactor);
   camera.position.clampLength(10, 50);
-
-  // If user scrolls while hovering a planet/sun, jump to that section
-  if (!isDragging && hoveredPlanet) {
-    const label = hoveredPlanet.userData.data?.label || hoveredPlanet.userData.data?.name;
-    const sectionId = sectionMap[label];
-    const now = Date.now();
-    if (sectionId && now - (window._lastScrollSelect || 0) > 800) {
-      window._lastScrollSelect = now;
-      const el = document.getElementById(sectionId);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  }
 });
 
-/* ============================================================
+/* 
    HOVER & CLICK INTERACTION
-============================================================ */
+*/
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let hoveredPlanet = null;
 
-// Map labels to page section IDs (used for scrolling on scroll-over)
+// Map labels to page section IDs for navigation
 const sectionMap = {
   "About Me": "about",
   "Tech Skills": "skills",
@@ -399,11 +377,32 @@ window.addEventListener("mousemove", e => {
   }
 });
 
-// Click handler replaced by scroll-based selection (see wheel listener above)
+window.addEventListener("click", event => {
+  if (isDragging) return;
 
-/* ============================================================
+  mouse.x = (event.clientX / innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects([sun, ...planets.map(p => p.mesh)]);
+
+  if (hits.length) {
+    const obj = hits[0].object;
+    const label = obj.userData.data?.label || obj.userData.data?.name;
+    const sectionId = sectionMap[label];
+
+    if (sectionId) {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      showPanel(obj.userData.data);
+    }
+  }
+});
+
+/* 
    PANEL FUNCTIONS
-============================================================ */
+*/
 
 function showPanel(data) {
   const panel = document.getElementById("infoPanel");
@@ -415,9 +414,9 @@ function closePanel() {
   document.getElementById("infoPanel").classList.remove("active");
 }
 
-/* ============================================================
+/* 
    ANIMATION + LABEL TRACKING
-============================================================ */
+ */
 
 function animate() {
   requestAnimationFrame(animate);
@@ -462,9 +461,9 @@ function animate() {
 
 animate();
 
-/* ============================================================
+/* 
    RESIZE
-============================================================ */
+*/
 
 window.addEventListener("resize", () => {
   camera.aspect = innerWidth / innerHeight;
